@@ -1,0 +1,60 @@
+---
+title: "INSY 6500 Fall 2019 Midterm Exam - R Component"
+author: "Jeff Smith"
+output:
+  pdf_document: default
+  word_document: default
+  html_notebook: default
+---
+
+1.  In the chunk below, read the data file "13_eustocks.csv" into a standard R dataframe, print the first 5 rows of the data, and show the structure of the dataframe using the str() function.
+```{r}
+df <- read.csv('13_eustocks.csv')
+str(df)
+```
+
+
+2. In the R chunk below, create a new dataframe consisting of the rows from Day 201 to Day 500 (total 300 rows) and the DAX and SMI columns from the original dataset and show the first 10 rows of the new dataframe.
+```{r}
+df2 <- df[201:500,2:3]
+df2
+
+```
+
+3. In the R chunk below, a) define a mask for observations from Day 501 to Day 1500 (1000 days) and FTSE greater than 2500. b) Then use this mask to create a new dataframe containing only the SMI and CAC columns. c) use this new dataframe and calculate how many days the CAC value is no more than 1900.
+```{r}
+m1 = (df$Day > 500 & df$Day < 1501 & df$FTSE > 2500) 
+
+df3 <- df[m1, 3:4]
+CAC_leq_1900 <- df3[df3$CAC <= 1900,]
+
+nrow(CAC_leq_1900)
+
+```
+
+4. In the R chunk below, convert the original dataframe into a tibble and show the resulting tibble. Then using the new tibble, compute the a) mean and b) std.dev of CAC and FTSE and show the results
+```{r}
+library("tidyverse")
+df4 <- as_tibble(df)
+
+str(df4)
+
+df4 %>% 
+  summarise(meanCAC = mean(CAC), stdCAC = sd(CAC), meanFTSE = mean(FTSE), stdFTSE = sd(FTSE))
+
+```
+
+5.  In the R chunk below, use ggplot2 and the tibble from Problem 4to create a) a point plot of the DAX prices (y) against the SMI prices (x) and use red dots. b)  Use geom_smooth and show a smoothed plot of the DAX prices (y) against the SMI prices (x) and use black line. c) use the smoothed plot in b) and add the point plot in a) as an overlay.
+```{r}
+library("tidyverse")
+ggplot(data = df4) +
+  geom_point(mapping = aes(x = df4$SMI, y = df4$DAX), color = 'red') + xlab("SMI Prices") + ylab("DAX Prices")
+
+ggplot(data = df4) +
+  geom_smooth(mapping = aes(x = df4$SMI, y = df4$SMI), color = 'black') + xlab("SMI Prices") + ylab("DAX Prices")
+
+
+ggplot(data = df4, mapping = aes(x = df4$SMI, y = df4$DAX)) +
+  geom_point(color = 'red') + geom_smooth(color = 'black') + xlab("SMI Prices") + ylab("DAX Prices")
+
+```
